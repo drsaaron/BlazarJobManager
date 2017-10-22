@@ -1,0 +1,8 @@
+/home/scott/NetBeansProjects/JobManager-mvn/src/main/java/com/nm/ffba/common/batch/main/SpringHelper.java
+/home/scott/NetBeansProjects/JobManager-mvn/src/main/java/com/nm/ffba/common/batch/JobStatus.java
+/home/scott/NetBeansProjects/JobManager-mvn/src/main/java/com/nm/ffba/common/batch/main/JobRunner.java
+/home/scott/NetBeansProjects/JobManager-mvn/src/main/java/com/nm/ffba/common/batch/impl/JobManagerBaseImpl.java
+/home/scott/NetBeansProjects/JobManager-mvn/src/main/java/com/nm/ffba/common/batch/impl/spring/SpringBatchJobManager.java
+/home/scott/NetBeansProjects/JobManager-mvn/src/main/java/com/nm/ffba/common/batch/IJobParametersBuilder.java
+/home/scott/NetBeansProjects/JobManager-mvn/src/main/java/com/nm/ffba/common/batch/IJobManager.java
+/home/scott/NetBeansProjects/JobManager-mvn/src/main/java/com/nm/ffba/common/batch/partition/ModuloPartitioner.java
