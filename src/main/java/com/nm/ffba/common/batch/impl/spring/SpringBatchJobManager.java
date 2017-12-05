@@ -8,9 +8,7 @@ package com.nm.ffba.common.batch.impl.spring;
 import com.nm.ffba.common.batch.IJobManager;
 import com.nm.ffba.common.batch.IJobParametersBuilder;
 import com.nm.ffba.common.batch.JobStatus;
-import com.nm.ffba.common.batch.impl.JobManagerBaseImpl;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
@@ -21,18 +19,13 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.JobParametersIncrementer;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * A job manager implemented using the spring batch framework. The
@@ -42,91 +35,12 @@ import org.springframework.stereotype.Component;
  *
  * @author AAR1069
  */
-@Component
-public class SpringBatchJobManager extends JobManagerBaseImpl implements IJobManager {
+public class SpringBatchJobManager extends BaseSpringBatchJobManager implements IJobManager {
 
     private static final Logger logger = Logger.getLogger(SpringBatchJobManager.class);
 
-    private JobParameters addParameter(JobParameters parameters, String key, JobParameter parameter) {
-        JobParametersBuilder builder = new JobParametersBuilder(parameters);
-        return builder.addParameter(key, parameter).toJobParameters();
-    }
-
-    private JobParameters addParameter(JobParameters parameters, String key, String parameter) {
-        return addParameter(parameters, key, new JobParameter(parameter));
-    }
-
-    private JobParameters addParameter(JobParameters parameters, String key, Long parameter) {
-        return addParameter(parameters, key, new JobParameter(parameter));
-    }
-
-    private JobParameters addParameter(JobParameters parameters, String key, Date parameter) {
-        return addParameter(parameters, key, new JobParameter(parameter));
-    }
-
-    private JobParameters addParameter(JobParameters parameters, String key, Double parameter) {
-        return addParameter(parameters, key, new JobParameter(parameter));
-    }
-
-    private JobParameters addParameter(JobParameters parameters, String key, Object parameter) {
-        if (parameter instanceof String) {
-            return addParameter(parameters, key, (String) parameter);
-        } else if (parameter instanceof Long) {
-            return addParameter(parameters, key, (Long) parameter);
-        } else if (parameter instanceof Date) {
-            return addParameter(parameters, key, (Date) parameter);
-        } else if (parameter instanceof Double) {
-            return addParameter(parameters, key, (Double) parameter);
-        } else {
-            return addParameter(parameters, key, parameter.toString());
-        }
-    }
-
-    @Autowired
-    private JobLauncher jobLauncher;
-    
-    private Map<String, Job> jobs;
-    
-    @Autowired
-    private JobExplorer jobExplorer;
-    
     @Autowired
     private JobParametersIncrementer incrementer;
-    
-    @Autowired
-    private JobRepository jobRepository;
-
-    public JobRepository getJobRepository() {
-        return jobRepository;
-    }
-
-    public void setJobRepository(JobRepository jobRepository) {
-        this.jobRepository = jobRepository;
-    }
-
-    public JobLauncher getJobLauncher() {
-        return jobLauncher;
-    }
-
-    public void setJobLauncher(JobLauncher jobLauncher) {
-        this.jobLauncher = jobLauncher;
-    }
-
-    public Map<String, Job> getJobs() {
-        return jobs;
-    }
-
-    public void setJobs(Map<String, Job> jobs) {
-        this.jobs = jobs;
-    }
-
-    public JobExplorer getJobExplorer() {
-        return jobExplorer;
-    }
-
-    public void setJobExplorer(JobExplorer jobExplorer) {
-        this.jobExplorer = jobExplorer;
-    }
 
     public JobParametersIncrementer getIncrementer() {
         return incrementer;
@@ -134,29 +48,6 @@ public class SpringBatchJobManager extends JobManagerBaseImpl implements IJobMan
 
     public void setIncrementer(JobParametersIncrementer incrementer) {
         this.incrementer = incrementer;
-    }
-
-    private JobInstance getLastJobInstance(String jobName) {
-        List<JobInstance> instances = jobExplorer.getJobInstances(jobName, 0, 1);
-        if (instances == null || instances.isEmpty()) {
-            logger.info("no prior job instances found.");
-            return null;
-        }
-        JobInstance lastInstance = instances.get(0);
-        return lastInstance;
-    }
-
-    private JobExecution getLastJobExecution(JobInstance lastInstance) {
-        List<JobExecution> executions = jobExplorer.getJobExecutions(lastInstance);
-        if (executions == null || executions.isEmpty()) {
-            logger.info("no prior executions found.");
-            return null;
-        }
-        return executions.get(0);
-    }
-
-    private JobExecution getLastJobExecution(String jobName) {
-        return getLastJobExecution(getLastJobInstance(jobName));
     }
 
     private JobParameters getLastRunJobParameters(Job job) {
@@ -182,9 +73,9 @@ public class SpringBatchJobManager extends JobManagerBaseImpl implements IJobMan
         
         // a restartable job
         String jobIdentifier = job.getName();
-        List<JobInstance> lastInstances = jobExplorer.getJobInstances(jobIdentifier, 0, 1);
+        List<JobInstance> lastInstances = getJobExplorer().getJobInstances(jobIdentifier, 0, 1);
         for (JobInstance instance : lastInstances) {
-            List<JobExecution> lastExecutions = jobExplorer.getJobExecutions(instance);
+            List<JobExecution> lastExecutions = getJobExplorer().getJobExecutions(instance);
             for (JobExecution execution : lastExecutions) {
                 ExitStatus exitStatus = execution.getExitStatus();
                 switch (exitStatus.getExitCode()) {
@@ -320,7 +211,7 @@ public class SpringBatchJobManager extends JobManagerBaseImpl implements IJobMan
         // update status.
         lastExecution.setStatus(BatchStatus.COMPLETED);
         lastExecution.setExitStatus(ExitStatus.COMPLETED);
-        jobRepository.update(lastExecution);
+        getJobRepository().update(lastExecution);
     }
 
     @Override
@@ -362,6 +253,6 @@ public class SpringBatchJobManager extends JobManagerBaseImpl implements IJobMan
         // update
         lastStepExecution.setStatus(BatchStatus.COMPLETED);
         lastStepExecution.setExitStatus(ExitStatus.COMPLETED);
-        jobRepository.update(lastStepExecution);
+        getJobRepository().update(lastStepExecution);
     }
 }
