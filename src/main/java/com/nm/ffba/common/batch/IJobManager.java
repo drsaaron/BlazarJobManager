@@ -11,7 +11,7 @@ import java.util.Map;
  * Interface for a component that run & manage batch jobs.
  * 
  * @author AAR1069
- * @version $Id: IJobManager.java 13 2016-10-30 21:11:25Z scott $
+ * @version $Id: IJobManager.java 193 2015-12-15 17:46:42Z aar1069 $
  */
 public interface IJobManager {
     
