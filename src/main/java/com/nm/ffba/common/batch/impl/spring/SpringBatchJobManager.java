@@ -26,6 +26,7 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * A job manager implemented using the spring batch framework. The
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author AAR1069
  */
+@Component("SpringBatchJobManager")
 public class SpringBatchJobManager extends BaseSpringBatchJobManager implements IJobManager {
 
     private static final Logger logger = Logger.getLogger(SpringBatchJobManager.class);
@@ -174,16 +176,6 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
         logger.info("running job " + jobName + " with arguments " + String.join(", ", args));
         IJobParametersBuilder parametersBuilder = getParameterBuilders().get(jobName);
         return runJob(jobName, args, parametersBuilder);
-    }
-
-    private Map<String, IJobParametersBuilder> parameterBuilders;
-
-    public Map<String, IJobParametersBuilder> getParameterBuilders() {
-        return parameterBuilders;
-    }
-
-    public void setParameterBuilders(Map<String, IJobParametersBuilder> parameterBuilders) {
-        this.parameterBuilders = parameterBuilders;
     }
 
     @Override

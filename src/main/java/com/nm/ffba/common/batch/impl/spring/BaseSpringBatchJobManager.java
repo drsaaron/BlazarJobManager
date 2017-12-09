@@ -6,11 +6,13 @@
 package com.nm.ffba.common.batch.impl.spring;
 
 import com.nm.ffba.common.batch.IJobManager;
+import com.nm.ffba.common.batch.IJobParametersBuilder;
 import com.nm.ffba.common.batch.impl.JobManagerBaseImpl;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
@@ -31,9 +33,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author aar1069
  */
 public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl implements IJobManager {
-    
+
     private static final Logger logger = Logger.getLogger(BaseSpringBatchJobManager.class);
-    
+
     public JobParameters addParameter(JobParameters parameters, String key, JobParameter parameter) {
         JobParametersBuilder builder = new JobParametersBuilder(parameters);
         return builder.addParameter(key, parameter).toJobParameters();
@@ -71,12 +73,13 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
 
     @Autowired
     private JobLauncher jobLauncher;
-    
+
+    @Resource(name = "batchJobMap")
     private Map<String, Job> jobs;
-    
+
     @Autowired
     private JobExplorer jobExplorer;
-    
+
     @Autowired
     private JobRepository jobRepository;
 
@@ -111,7 +114,7 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
     public void setJobExplorer(JobExplorer jobExplorer) {
         this.jobExplorer = jobExplorer;
     }
-    
+
     public JobExecution getLastJobExecution(JobInstance lastInstance) {
         List<JobExecution> executions = jobExplorer.getJobExecutions(lastInstance);
         if (executions == null || executions.isEmpty()) {
@@ -124,7 +127,7 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
     public JobExecution getLastJobExecution(String jobName) {
         return getLastJobExecution(getLastJobInstance(jobName));
     }
-    
+
     public JobInstance getLastJobInstance(String jobName) {
         List<JobInstance> instances = jobExplorer.getJobInstances(jobName, 0, 1);
         if (instances == null || instances.isEmpty()) {
@@ -134,14 +137,14 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
         JobInstance lastInstance = instances.get(0);
         return lastInstance;
     }
-    
+
     @Override
     public void forceJobToSuccess(String jobName) {
         logger.info("forcing last execution of " + jobName + " to success");
 
         // get the last execution of the job.
         JobExecution lastExecution = getLastJobExecution(jobName);
-        
+
         // sanity checks.
         if (lastExecution == null) {
             logger.info("job has never been executed!");
@@ -160,10 +163,10 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
     @Override
     public void forceStepToSuccess(String jobName, String stepName) {
         logger.info("forcing step " + stepName + " in job " + jobName + " to success.");
-        
+
         // get the last execution of the job.
         JobExecution lastExecution = getLastJobExecution(jobName);
-        
+
         // sanity checks.
         if (lastExecution == null) {
             logger.info("job has never been executed!");
@@ -172,10 +175,10 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
             logger.info("job has already completed successfully!");
             throw new IllegalStateException("job " + jobName + " has already completed successfully");
         }
-        
+
         // get the steps from that run.
         Collection<StepExecution> stepExecutions = lastExecution.getStepExecutions();
-        
+
         // find that step.
         StepExecution lastStepExecution = null;
         for (StepExecution step : stepExecutions) {
@@ -184,7 +187,7 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
                 break;
             }
         }
-        
+
         // sanity check.
         if (lastStepExecution == null) {
             throw new IllegalArgumentException("step " + stepName + " not found in last execution of " + jobName);
@@ -192,10 +195,18 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
             logger.info("step has already completed successfully!");
             throw new IllegalStateException("step " + stepName + " has already completed successfully");
         }
-        
+
         // update
         lastStepExecution.setStatus(BatchStatus.COMPLETED);
         lastStepExecution.setExitStatus(ExitStatus.COMPLETED);
         jobRepository.update(lastStepExecution);
     }
+
+    @Resource(name = "batchJobParameterBuilderMap")
+    private Map<String, IJobParametersBuilder> parameterBuilders;
+
+    public Map<String, IJobParametersBuilder> getParameterBuilders() {
+        return parameterBuilders;
+    }
+
 }
