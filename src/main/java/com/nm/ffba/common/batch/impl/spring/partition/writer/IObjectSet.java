@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.nm.ffba.common.batch.partition.writer;
+package com.nm.ffba.common.batch.impl.spring.partition.writer;
 
 import java.util.Collection;
 

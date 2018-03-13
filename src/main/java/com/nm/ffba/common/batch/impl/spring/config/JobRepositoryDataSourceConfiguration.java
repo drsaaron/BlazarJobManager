@@ -43,7 +43,7 @@ public class JobRepositoryDataSourceConfiguration {
     @Autowired
     private BlazarCryptoFile cryptoFile;
 
-    @Bean(name = "JobRepositoryDataSource", destroyMethod = "close")
+    @Bean(name = "JobRepositoryDataSource", destroyMethod = "")
     public DataSource getJobRepositoryDataSource() {
         logger.info("building data source for " + url + " via dbcp");
         BasicDataSource ds = new BasicDataSource();

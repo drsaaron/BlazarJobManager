@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.nm.ffba.common.batch.partition;
+package com.nm.ffba.common.batch.impl.spring.partition;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.stereotype.Component;
 
 /**
  * A partitioner that establish a grid comprised of the divisor, which is the 
@@ -16,6 +17,7 @@ import org.springframework.batch.item.ExecutionContext;
  * 
  * @author AAR1069
  */
+@Component
 public class ModuloPartitioner implements Partitioner {
 
     @Override
