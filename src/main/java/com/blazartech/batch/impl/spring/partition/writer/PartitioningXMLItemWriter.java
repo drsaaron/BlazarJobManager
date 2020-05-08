@@ -14,7 +14,8 @@ import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
@@ -28,7 +29,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
  */
 public class PartitioningXMLItemWriter<T> implements ItemWriter<T>, InitializingBean {
 
-    private static final Logger logger = Logger.getLogger(PartitioningXMLItemWriter.class);
+    private static final Logger logger = LoggerFactory.getLogger(PartitioningXMLItemWriter.class);
 
     private String outputDirectory;
     private String fileNameBase;

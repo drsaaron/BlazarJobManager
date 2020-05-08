@@ -8,7 +8,8 @@ package com.blazartech.batch.impl.spring.config;
 import com.blazartech.products.crypto.BlazarCryptoFile;
 import javax.sql.DataSource;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JobRepositoryDataSourceConfiguration {
 
-    private static final Logger logger = Logger.getLogger(JobRepositoryDataSourceConfiguration.class);
+    private static final Logger logger = LoggerFactory.getLogger(JobRepositoryDataSourceConfiguration.class);
 
     @Value("${batch.job.repos.userID}")
     private String userID;

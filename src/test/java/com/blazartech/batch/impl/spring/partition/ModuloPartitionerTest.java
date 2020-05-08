@@ -6,7 +6,6 @@
 package com.blazartech.batch.impl.spring.partition;
 
 import java.util.Map;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -14,6 +13,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +31,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 })
 public class ModuloPartitionerTest {
     
-    private static final Logger logger = Logger.getLogger(ModuloPartitionerTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ModuloPartitionerTest.class);
     
     static class ModuloPartitionerTestConfiguration {
         

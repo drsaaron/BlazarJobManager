@@ -7,7 +7,8 @@ package com.blazartech.batch.main;
 
 import com.blazartech.batch.IJobManager;
 import com.blazartech.batch.JobStatus;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Main program for executing jobs. The invoker will pass the name of the spring
@@ -22,7 +23,7 @@ import org.apache.log4j.Logger;
  */
 public class JobRunner {
 
-    private static final Logger logger = Logger.getLogger(JobRunner.class);
+    private static final Logger logger = LoggerFactory.getLogger(JobRunner.class);
 
     /**
      * @param args the command line arguments

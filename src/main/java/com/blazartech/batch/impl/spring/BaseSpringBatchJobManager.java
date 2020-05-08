@@ -13,7 +13,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
@@ -34,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl implements IJobManager {
 
-    private static final Logger logger = Logger.getLogger(BaseSpringBatchJobManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(BaseSpringBatchJobManager.class);
 
     public JobParameters addParameter(JobParameters parameters, String key, JobParameter parameter) {
         JobParametersBuilder builder = new JobParametersBuilder(parameters);
