@@ -109,8 +109,12 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
             // we need to add run.id to the parameters so that we can get the correct instance.
             JobParameters lastRunParameters = getLastRunJobParameters(job);
             if (lastRunParameters != null) {
-                long lastRunID = lastRunParameters.getLong("run.id");
-                parameters = addParameter(parameters, "run.id", lastRunID);
+                Long lastRunID = lastRunParameters.getLong("run.id");
+                if (lastRunID != null) {
+                    parameters = addParameter(parameters, "run.id", lastRunID);
+                } else {
+                    logger.info("last run.id is null");
+                }
             }
 
             // check for new status.
