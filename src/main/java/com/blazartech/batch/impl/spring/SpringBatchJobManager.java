@@ -82,18 +82,16 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
             for (JobExecution execution : lastExecutions) {
                 ExitStatus exitStatus = execution.getExitStatus();
                 switch (exitStatus.getExitCode()) {
-                    case "COMPLETED":
+                    case "COMPLETED" -> {
                         logger.info("job completed successfully, so new instance needed");
                         return true;
-                    case "NOOP":
-                        logger.info("status is noop, continuing");
-                        break;
-                    case "FAILED":
+                    }
+                    case "NOOP" -> logger.info("status is noop, continuing");
+                    case "FAILED" -> {
                         logger.info("status failed, no new instance");
                         return false;
-                    default:
-                        logger.info("unexpected status: " + exitStatus);
-                        break;
+                    }
+                    default -> logger.info("unexpected status: " + exitStatus);
                 }
             }
         }
