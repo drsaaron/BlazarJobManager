@@ -65,7 +65,7 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
         return lastExecution.getJobParameters();
     }
 
-    private boolean isNewInstanceNeeded(Job job) {
+    public boolean isNewInstanceNeeded(Job job) {
         logger.info("checking prior runs of the job to determine if new instance needed");
 
         // is the job even restartable?
