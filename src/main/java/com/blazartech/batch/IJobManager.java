@@ -68,4 +68,12 @@ public interface IJobManager {
      * @param stepName 
      */
     public void forceStepToSuccess(String jobName, String stepName);
+    
+    /**
+     * get the status of a particular execution of a job
+     * 
+     * @param executionID
+     * @return 
+     */
+    public JobInformation getJobInformation(long executionID);
 }

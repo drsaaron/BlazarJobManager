@@ -250,4 +250,22 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
         lastStepExecution.setExitStatus(ExitStatus.COMPLETED);
         getJobRepository().update(lastStepExecution);
     }
+    
+    @Override
+    public JobInformation getJobInformation(long executionID) {
+        JobExecution execution = getJobExplorer().getJobExecution(executionID);
+        if (execution != null) {
+            JobStatus status = getJobStatus(execution);
+            JobInformation info = new JobInformation();
+            info.setExecutionID(executionID);
+            info.setStatus(status);
+            return info;
+        }
+
+        // couldn't find the thing
+        JobInformation info = new JobInformation();
+        info.setExecutionID(-1);
+        info.setStatus(JobStatus.Unknown);
+        return info;
+    }
 }
