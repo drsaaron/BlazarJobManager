@@ -7,6 +7,8 @@ package com.blazartech.batch.impl.spring;
 
 import com.blazartech.batch.IJobManager;
 import com.blazartech.batch.IJobParametersBuilder;
+import com.blazartech.batch.JobInformation;
+import com.blazartech.batch.JobStatus;
 import com.blazartech.batch.impl.JobManagerBaseImpl;
 import java.util.Collection;
 import java.util.Date;
@@ -210,4 +212,35 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
         return parameterBuilders;
     }
 
+    protected JobStatus getJobStatus(JobExecution execution) {
+        logger.info("getting exit status for execution {}", execution.getId());
+        ExitStatus status = execution.getExitStatus();
+        logger.info(status.toString());
+        
+        if (status.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())) {
+            return JobStatus.Success;
+        } else if (status.getExitCode().equals(ExitStatus.UNKNOWN.getExitCode())) {
+            return JobStatus.Running;
+        } else {
+            return JobStatus.Failure;
+        }
+    }
+    
+    @Override
+    public JobInformation getJobInformation(long executionID) {
+        JobExecution execution = getJobExplorer().getJobExecution(executionID);
+        if (execution != null) {
+            JobStatus status = getJobStatus(execution);
+            JobInformation info = new JobInformation();
+            info.setExecutionID(executionID);
+            info.setStatus(status);
+            return info;
+        }
+
+        // couldn't find the thing
+        JobInformation info = new JobInformation();
+        info.setExecutionID(-1);
+        info.setStatus(JobStatus.Unknown);
+        return info;
+    }
 }

@@ -87,6 +87,10 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
                         return true;
                     }
                     case "NOOP" -> logger.info("status is noop, continuing");
+                    case "STOPPED" -> {
+                        logger.info("status is stopped, so no new instance needed");
+                        return false;
+                    }
                     case "FAILED" -> {
                         logger.info("status failed, no new instance");
                         return false;
@@ -249,23 +253,5 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
         lastStepExecution.setStatus(BatchStatus.COMPLETED);
         lastStepExecution.setExitStatus(ExitStatus.COMPLETED);
         getJobRepository().update(lastStepExecution);
-    }
-    
-    @Override
-    public JobInformation getJobInformation(long executionID) {
-        JobExecution execution = getJobExplorer().getJobExecution(executionID);
-        if (execution != null) {
-            JobStatus status = getJobStatus(execution);
-            JobInformation info = new JobInformation();
-            info.setExecutionID(executionID);
-            info.setStatus(status);
-            return info;
-        }
-
-        // couldn't find the thing
-        JobInformation info = new JobInformation();
-        info.setExecutionID(-1);
-        info.setStatus(JobStatus.Unknown);
-        return info;
     }
 }
