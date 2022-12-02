@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  *
@@ -31,6 +32,10 @@ public class JobExplorerConfiguration {
     
     @Value("${batch.job.repos.tablePrefix}")
     private String prefix;
+
+    @Autowired
+    @Qualifier("JobRepositoryTransactionManager")
+    private PlatformTransactionManager transactionManager;
     
     @Bean(name = "jobExplorer") 
     public JobExplorerFactoryBean getJobExplorer() {
@@ -38,6 +43,7 @@ public class JobExplorerConfiguration {
         je.setDataSource(jobRepositoryDataSource);
         je.setSerializer(batchDefaultSerializer);
         je.setTablePrefix(prefix);
+	je.setTransactionManager(transactionManager);
         return je;
     }
 }

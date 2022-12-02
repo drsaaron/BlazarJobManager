@@ -16,6 +16,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
@@ -82,22 +83,22 @@ public class PartitioningXMLItemWriter<T> implements ItemWriter<T>, Initializing
     }
 
     @Override
-    public void write(List<? extends T> list) throws Exception {
+    public void write(Chunk<? extends T> chunk) throws Exception {
         Map<Integer, List<T>> hashedList = new HashMap<>();
 
-        for (T a : list) {
-            // determine the partition to which this object belongs.
-            int partitionNumber = determinePartition.determinePartition(a);
-            logger.debug("partition " + partitionNumber);
-
-            // save.
-            List<T> partitionedObjectList = hashedList.get(partitionNumber);
-            if (partitionedObjectList == null) {
-                partitionedObjectList = new ArrayList<>();
-                hashedList.put(partitionNumber, partitionedObjectList);
-            }
-            partitionedObjectList.add(a);
-        }
+	chunk.getItems().forEach(a -> {
+		// determine the partition to which this object belongs.
+		int partitionNumber = determinePartition.determinePartition(a);
+		logger.debug("partition " + partitionNumber);
+		
+		// save.
+		List<T> partitionedObjectList = hashedList.get(partitionNumber);
+		if (partitionedObjectList == null) {
+		    partitionedObjectList = new ArrayList<>();
+		    hashedList.put(partitionNumber, partitionedObjectList);
+		}
+		partitionedObjectList.add(a);
+	    });
 
         // send each list to the appropriate file.
         for (int i : hashedList.keySet()) {

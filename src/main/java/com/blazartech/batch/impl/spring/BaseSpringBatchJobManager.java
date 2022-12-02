@@ -41,23 +41,23 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
 
     public JobParameters addParameter(JobParameters parameters, String key, JobParameter parameter) {
         JobParametersBuilder builder = new JobParametersBuilder(parameters);
-        return builder.addParameter(key, parameter).toJobParameters();
+        return builder.addJobParameter(key, parameter).toJobParameters();
     }
 
     public JobParameters addParameter(JobParameters parameters, String key, String parameter) {
-        return addParameter(parameters, key, new JobParameter(parameter));
+        return addParameter(parameters, key, new JobParameter<>(parameter, String.class));
     }
 
     public JobParameters addParameter(JobParameters parameters, String key, Long parameter) {
-        return addParameter(parameters, key, new JobParameter(parameter));
+        return addParameter(parameters, key, new JobParameter<>(parameter, Long.class));
     }
 
     public JobParameters addParameter(JobParameters parameters, String key, Date parameter) {
-        return addParameter(parameters, key, new JobParameter(parameter));
+        return addParameter(parameters, key, new JobParameter<>(parameter, Date.class));
     }
 
     public JobParameters addParameter(JobParameters parameters, String key, Double parameter) {
-        return addParameter(parameters, key, new JobParameter(parameter));
+        return addParameter(parameters, key, new JobParameter<>(parameter, Double.class));
     }
 
     public JobParameters addParameter(JobParameters parameters, String key, Object parameter) {

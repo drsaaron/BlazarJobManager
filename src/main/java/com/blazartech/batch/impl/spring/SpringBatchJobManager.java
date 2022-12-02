@@ -149,10 +149,9 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
 
     private void logParameters(JobParameters parameters) {
         logger.info("logging parameters");
-        Map<String, JobParameter> p = parameters.getParameters();
-        p.keySet().stream().forEach((name) -> {
-            logger.info("parameter " + name + " = " + p.get(name));
-        });
+	parameters.getParameters()
+	    .entrySet()
+	    .forEach(p -> logger.info("parameter " + p.getKey() + " = " + p.getValue()));
     }
 
     @Override
