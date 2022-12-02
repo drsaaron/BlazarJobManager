@@ -30,6 +30,7 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  *
@@ -61,14 +62,14 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
     }
 
     public JobParameters addParameter(JobParameters parameters, String key, Object parameter) {
-        if (parameter instanceof String) {
-            return addParameter(parameters, key, (String) parameter);
-        } else if (parameter instanceof Long) {
-            return addParameter(parameters, key, (Long) parameter);
-        } else if (parameter instanceof Date) {
-            return addParameter(parameters, key, (Date) parameter);
-        } else if (parameter instanceof Double) {
-            return addParameter(parameters, key, (Double) parameter);
+        if (parameter instanceof String string) {
+            return addParameter(parameters, key, string);
+        } else if (parameter instanceof Long long1) {
+            return addParameter(parameters, key, long1);
+        } else if (parameter instanceof Date date) {
+            return addParameter(parameters, key, date);
+        } else if (parameter instanceof Double double1) {
+            return addParameter(parameters, key, double1);
         } else {
             return addParameter(parameters, key, parameter.toString());
         }
@@ -77,7 +78,8 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
     @Autowired
     private JobLauncher jobLauncher;
 
-    @Resource(name = "batchJobMap")
+    @Autowired
+    @Qualifier("batchJobMap")
     private Map<String, Job> jobs;
 
     @Autowired
@@ -216,7 +218,7 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
         logger.info("getting exit status for execution {}", execution.getId());
         ExitStatus status = execution.getExitStatus();
         logger.info(status.toString());
-        
+
         if (status.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())) {
             return JobStatus.Success;
         } else if (status.getExitCode().equals(ExitStatus.UNKNOWN.getExitCode())) {
@@ -225,7 +227,7 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
             return JobStatus.Failure;
         }
     }
-    
+
     @Override
     public JobInformation getJobInformation(long executionID) {
         JobExecution execution = getJobExplorer().getJobExecution(executionID);
