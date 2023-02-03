@@ -4,7 +4,7 @@
  */
 package com.blazartech.batch.impl.spring.shutdown;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
