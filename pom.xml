@@ -104,14 +104,4 @@
         </repository>
     </distributionManagement>
 
-    <build>
-        <plugins>
-            <!-- plugin to make junit 5 work -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
-            </plugin>
-        </plugins>
-    </build>
 </project>
