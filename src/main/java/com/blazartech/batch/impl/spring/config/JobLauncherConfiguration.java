@@ -6,7 +6,7 @@
 package com.blazartech.batch.impl.spring.config;
 
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,7 +32,7 @@ public class JobLauncherConfiguration {
 
     @Bean(name = "jobLauncher")
     public JobLauncher getJobLauncher() {
-        SimpleJobLauncher l = new SimpleJobLauncher();
+        TaskExecutorJobLauncher l = new TaskExecutorJobLauncher();
         l.setJobRepository(jobRepository);
         if (useAsync) {
             l.setTaskExecutor(simpleAsyncTaskExecutor());

@@ -62,13 +62,13 @@ public class PartitioningXMLItemWriter<T> implements ItemWriter<T>, Initializing
     public void setMarshaller(Jaxb2Marshaller jaxbMarshaller) {
         this.marshaller = jaxbMarshaller;
     }
-    private IDeterminePartition determinePartition;
+    private IDeterminePartition<T> determinePartition;
 
     public IDeterminePartition getDeterminePartition() {
         return determinePartition;
     }
 
-    public void setDeterminePartition(IDeterminePartition determinePartition) {
+    public void setDeterminePartition(IDeterminePartition<T> determinePartition) {
         this.determinePartition = determinePartition;
     }
 
