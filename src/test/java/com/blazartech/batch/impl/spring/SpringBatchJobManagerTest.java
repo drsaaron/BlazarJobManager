@@ -70,13 +70,13 @@ public class SpringBatchJobManagerTest {
     @Autowired
     private SpringBatchJobManager instance;
     
-    @MockBean
+    @MockitoBean
     private JobExplorer jobExplorer;
     
-    @MockBean
+    @MockitoBean
     private JobRepository jobRepository;
     
-    @MockBean
+    @MockitoBean
     private JobLauncher jobLauncher;
     
     public SpringBatchJobManagerTest() {
