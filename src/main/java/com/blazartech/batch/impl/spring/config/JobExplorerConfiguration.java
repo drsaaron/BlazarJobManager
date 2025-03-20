@@ -27,7 +27,6 @@ public class JobExplorerConfiguration {
     private DataSource jobRepositoryDataSource;
     
     @Autowired
-    @Qualifier("batchDefaultSerializer")
     private ExecutionContextSerializer batchDefaultSerializer;
     
     @Value("${batch.job.repos.tablePrefix}")

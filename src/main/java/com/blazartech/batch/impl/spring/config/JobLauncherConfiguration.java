@@ -9,7 +9,6 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +22,6 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 public class JobLauncherConfiguration {
 
     @Autowired
-    @Qualifier("jobRepository")
     private JobRepository jobRepository;
 
     // should we use an async executor for the job execution?  Default is no (false).
