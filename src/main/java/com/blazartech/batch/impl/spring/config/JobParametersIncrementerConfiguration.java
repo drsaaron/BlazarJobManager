@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 public class JobParametersIncrementerConfiguration {
     
     @Bean
-    public JobParametersIncrementer getJobParametersIncrementer() {
+    public JobParametersIncrementer jobParametersIncrementer() {
         return new RunIdIncrementer();
     }
 }

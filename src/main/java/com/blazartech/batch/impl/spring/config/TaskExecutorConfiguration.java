@@ -18,7 +18,7 @@ import org.springframework.core.task.TaskExecutor;
 public class TaskExecutorConfiguration {
     
     @Bean(name = "taskExecutor")
-    public TaskExecutor getTaskExecutor() {
+    public TaskExecutor taskExecutor() {
         return new SimpleAsyncTaskExecutor();
     }
 }

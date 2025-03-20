@@ -37,8 +37,8 @@ public class JobExplorerConfiguration {
     @Qualifier("JobRepositoryTransactionManager")
     private PlatformTransactionManager transactionManager;
     
-    @Bean(name = "jobExplorer") 
-    public JobExplorerFactoryBean getJobExplorer() {
+    @Bean
+    public JobExplorerFactoryBean jobExplorer() {
         JobExplorerFactoryBean je = new JobExplorerFactoryBean();
         je.setDataSource(jobRepositoryDataSource);
         je.setSerializer(batchDefaultSerializer);

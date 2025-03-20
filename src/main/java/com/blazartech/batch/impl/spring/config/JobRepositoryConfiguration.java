@@ -35,14 +35,13 @@ public class JobRepositoryConfiguration {
     private PlatformTransactionManager transactionManager;
 
     @Autowired
-    @Qualifier("batchDefaultSerializer")
     private ExecutionContextSerializer batchDefaultSerializer;
 
     @Value("${batch.job.repos.tablePrefix}")
     private String tablePrefix;
 
-    @Bean(name = "jobRepository")
-    public JobRepositoryFactoryBean getJobRepository() {
+    @Bean
+    public JobRepositoryFactoryBean jobRepository() {
         JobRepositoryFactoryBean jr = new JobRepositoryFactoryBean();
         jr.setDataSource(jobRepositoryDataSource);
         jr.setSerializer(batchDefaultSerializer);

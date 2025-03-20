@@ -30,8 +30,8 @@ public class JobLauncherConfiguration {
     @Value("${batch.job.async:false}")
     private boolean useAsync;
 
-    @Bean(name = "jobLauncher")
-    public JobLauncher getJobLauncher() {
+    @Bean
+    public JobLauncher jobLauncher() {
         TaskExecutorJobLauncher l = new TaskExecutorJobLauncher();
         l.setJobRepository(jobRepository);
         if (useAsync) {

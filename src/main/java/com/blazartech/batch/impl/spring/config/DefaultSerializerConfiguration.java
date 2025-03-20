@@ -6,7 +6,6 @@
 package com.blazartech.batch.impl.spring.config;
 
 import org.springframework.batch.core.repository.ExecutionContextSerializer;
-import org.springframework.batch.core.repository.dao.DefaultExecutionContextSerializer;
 import org.springframework.batch.core.repository.dao.Jackson2ExecutionContextStringSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +17,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DefaultSerializerConfiguration {
     
-    @Bean(name = "batchDefaultSerializer")
-    public ExecutionContextSerializer getDefaultSerializer() {
+    @Bean
+    public ExecutionContextSerializer batchDefaultSerializer() {
         return new Jackson2ExecutionContextStringSerializer();
     }
 }
