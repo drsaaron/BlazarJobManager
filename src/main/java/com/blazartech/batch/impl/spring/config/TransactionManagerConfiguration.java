@@ -24,8 +24,8 @@ public class TransactionManagerConfiguration {
     @Qualifier("JobRepositoryDataSource")
     private DataSource jobRepositoryDataSource;
     
-    @Bean(name = "JobRepositoryTransactionManager")
-    public PlatformTransactionManager getTransactionManager() {
+    @Bean
+    public PlatformTransactionManager jobRepositoryTransactionManager() {
         DataSourceTransactionManager manager = new DataSourceTransactionManager();
         manager.setDataSource(jobRepositoryDataSource);
         return manager;

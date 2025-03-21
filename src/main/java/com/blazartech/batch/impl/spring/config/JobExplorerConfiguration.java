@@ -33,8 +33,7 @@ public class JobExplorerConfiguration {
     private String prefix;
 
     @Autowired
-    @Qualifier("JobRepositoryTransactionManager")
-    private PlatformTransactionManager transactionManager;
+    private PlatformTransactionManager jobRepositoryTransactionManager;
     
     @Bean
     public JobExplorerFactoryBean jobExplorer() {
@@ -42,7 +41,7 @@ public class JobExplorerConfiguration {
         je.setDataSource(jobRepositoryDataSource);
         je.setSerializer(batchDefaultSerializer);
         je.setTablePrefix(prefix);
-	je.setTransactionManager(transactionManager);
+	je.setTransactionManager(jobRepositoryTransactionManager);
         return je;
     }
 }

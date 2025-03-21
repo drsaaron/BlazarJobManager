@@ -31,8 +31,7 @@ public class JobRepositoryConfiguration {
     private DataSource jobRepositoryDataSource;
 
     @Autowired
-    @Qualifier("JobRepositoryTransactionManager")
-    private PlatformTransactionManager transactionManager;
+    private PlatformTransactionManager jobRepositoryTransactionManager;
 
     @Autowired
     private ExecutionContextSerializer batchDefaultSerializer;
@@ -45,7 +44,7 @@ public class JobRepositoryConfiguration {
         JobRepositoryFactoryBean jr = new JobRepositoryFactoryBean();
         jr.setDataSource(jobRepositoryDataSource);
         jr.setSerializer(batchDefaultSerializer);
-        jr.setTransactionManager(transactionManager);
+        jr.setTransactionManager(jobRepositoryTransactionManager);
         jr.setTablePrefix(tablePrefix);
         return jr;
     }
