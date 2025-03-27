@@ -5,7 +5,8 @@
 package com.blazartech.batch.impl.spring.shutdown;
 
 import jakarta.inject.Provider;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +18,11 @@ import org.springframework.stereotype.Component;
  * @author aar1069
  */
 @Component
-@Slf4j
 @Scope("prototype") // necessary because each instance needs to keep track of the handler thread
 public class GracefulShutdownJobListener implements JobExecutionListener {
 
+    private static final Logger log = LoggerFactory.getLogger(GracefulShutdownJobListener.class);
+    
     @Autowired
     private Provider<GracefulShutdownHandler> shutdownHandlerProvider;
 

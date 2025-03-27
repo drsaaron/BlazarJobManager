@@ -7,7 +7,8 @@ package com.blazartech.batch.impl.spring.shutdown;
 import com.blazartech.batch.IJobManager;
 import com.blazartech.batch.JobInformation;
 import com.blazartech.batch.JobStatus;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.launch.JobExecutionNotRunningException;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
@@ -21,8 +22,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-@Slf4j
 public class GracefulShutdownHandler extends Thread {
+    
+    private static final Logger log = LoggerFactory.getLogger(GracefulShutdownHandler.class);
 
     @Autowired
     private JobOperator jobOperator;
