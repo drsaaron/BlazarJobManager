@@ -65,6 +65,34 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
         return lastExecution.getJobParameters();
     }
 
+    private Boolean checkExitStatusForNewInstance(ExitStatus exitStatus) {
+        switch (exitStatus.getExitCode()) {
+            case "COMPLETED" -> {
+                logger.info("job completed successfully, so new instance needed");
+                return true;
+            }
+            case "NOOP" ->
+                logger.info("status is noop, continuing");
+            case "STOPPED" -> {
+                logger.info("status is stopped, so no new instance needed");
+                return false;
+            }
+            case "FAILED" -> {
+                logger.info("status failed, no new instance");
+                return false;
+            }
+            default ->
+                logger.info("unexpected status: " + exitStatus);
+        }
+        return null;
+    }
+
+    // define a comparator to sort the job instances in descending order by id so that
+    // the first in the list would be the most recent (highest ID).  The repository seems to do
+    // this on its own, but as the ligic in isNewInstanceNeeded will rely on that
+    // behavior, be explicit.
+    private static final Comparator<JobExecution> JOB_EXECUTION_NEW_INSTANCE_COMPARATOR = (i1, i2) -> i2.getId().compareTo(i1.getId());
+    
     public boolean isNewInstanceNeeded(Job job) {
         logger.info("checking prior runs of the job to determine if new instance needed");
 
@@ -77,32 +105,27 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
         // a restartable job
         String jobIdentifier = job.getName();
         List<JobInstance> lastInstances = getJobExplorer().getJobInstances(jobIdentifier, 0, 1);
-        for (JobInstance instance : lastInstances) {
-            List<JobExecution> lastExecutions = getJobExplorer().getJobExecutions(instance);
-            for (JobExecution execution : lastExecutions) {
-                ExitStatus exitStatus = execution.getExitStatus();
-                switch (exitStatus.getExitCode()) {
-                    case "COMPLETED" -> {
-                        logger.info("job completed successfully, so new instance needed");
-                        return true;
-                    }
-                    case "NOOP" -> logger.info("status is noop, continuing");
-                    case "STOPPED" -> {
-                        logger.info("status is stopped, so no new instance needed");
-                        return false;
-                    }
-                    case "FAILED" -> {
-                        logger.info("status failed, no new instance");
-                        return false;
-                    }
-                    default -> logger.info("unexpected status: " + exitStatus);
-                }
-            }
-        }
+        List<Boolean> statuses = lastInstances.stream()
+                .map(instance -> batchJobExplorer.getJobExecutions(instance))
+                .flatMap(lastExecutions -> lastExecutions.stream())
+                .sorted(JOB_EXECUTION_NEW_INSTANCE_COMPARATOR)
+                .map(execution -> execution.getExitStatus())
+                .map(exitStatus -> checkExitStatusForNewInstance(exitStatus))
+                .filter(status -> status != null) // filter out the statuses we don't care about, to just get those that actually complete the job in some way
+                .collect(Collectors.toList());
+        logger.info("got {} exit statuses", statuses.size());
 
-        // not really sure, so return true to be safe;
-        logger.info("no idea, so returning true");
-        return true;
+        // if the status list is empty, we cannot say one way or another, so create a new instance
+        if (statuses.isEmpty()) {
+            // not really sure, so return true to be safe;
+            logger.info("no idea, so returning true");
+            return true;
+        } else {
+            // grab the first status.  We've filtered down to completed statuses
+            // and sorted such that the most recent one is first.  The most recent
+            // value is what determines if a new instance is needed.
+            return statuses.getFirst();
+        }
     }
 
     private JobStatus runJob(Job job, JobParameters parameters) {

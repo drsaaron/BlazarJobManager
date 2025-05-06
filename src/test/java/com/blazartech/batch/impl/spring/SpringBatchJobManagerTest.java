@@ -96,14 +96,14 @@ public class SpringBatchJobManagerTest {
         JobInstance instance2 = new JobInstance(2L, TEST_FAIL_JOB_NAME);
         JobInstance instance3 = new JobInstance(3L, TEST_STOPPED_JOB_NAME);
         
-        JobExecution execution1 = new JobExecution(1L);
-        execution1.setExitStatus(ExitStatus.NOOP);
-        JobExecution execution2 = new JobExecution(2L);
-        execution2.setExitStatus(ExitStatus.COMPLETED);
-        JobExecution execution3 = new JobExecution(3L);
-        execution3.setExitStatus(ExitStatus.FAILED);
-        JobExecution execution4 = new JobExecution(4L);
-        execution4.setExitStatus(ExitStatus.STOPPED);
+        JobExecution executionNoop = new JobExecution(1L);
+        executionNoop.setExitStatus(ExitStatus.NOOP);
+        JobExecution executionCompleted = new JobExecution(200L); // needs to be highest number as completed would always be last
+        executionCompleted.setExitStatus(ExitStatus.COMPLETED);
+        JobExecution executionFailed = new JobExecution(3L);
+        executionFailed.setExitStatus(ExitStatus.FAILED);
+        JobExecution executionStopped = new JobExecution(4L);
+        executionStopped.setExitStatus(ExitStatus.STOPPED);
         
         Mockito.when(jobExplorer.getJobInstances(TEST_JOB_NAME, 0, 1))
                 .thenReturn(List.of(instance1));
@@ -115,11 +115,11 @@ public class SpringBatchJobManagerTest {
                 .thenReturn(List.of(instance3));
         
         Mockito.when(jobExplorer.getJobExecutions(instance1))
-                .thenReturn(List.of(execution1, execution2));
+	    .thenReturn(List.of(executionNoop, executionFailed, executionSuccess));
         Mockito.when(jobExplorer.getJobExecutions(instance2))
-                .thenReturn(List.of(execution1, execution3));
+                .thenReturn(List.of(executionNoop, executionFailed));
         Mockito.when(jobExplorer.getJobExecutions(instance3))
-                .thenReturn(List.of(execution1, execution4));
+                .thenReturn(List.of(executionNoop, executionStopped));
     }
     
     @AfterEach
