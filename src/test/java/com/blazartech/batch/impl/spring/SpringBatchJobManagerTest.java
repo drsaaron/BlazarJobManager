@@ -115,7 +115,7 @@ public class SpringBatchJobManagerTest {
                 .thenReturn(List.of(instance3));
         
         Mockito.when(jobExplorer.getJobExecutions(instance1))
-	    .thenReturn(List.of(executionNoop, executionFailed, executionSuccess));
+	    .thenReturn(List.of(executionNoop, executionFailed, executionCompleted));
         Mockito.when(jobExplorer.getJobExecutions(instance2))
                 .thenReturn(List.of(executionNoop, executionFailed));
         Mockito.when(jobExplorer.getJobExecutions(instance3))
