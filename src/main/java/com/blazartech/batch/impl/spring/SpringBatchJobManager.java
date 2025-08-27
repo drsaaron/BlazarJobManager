@@ -17,16 +17,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobInstance;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersIncrementer;
-import org.springframework.batch.core.JobParametersInvalidException;
-import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.parameters.JobParameters;
+import org.springframework.batch.core.job.parameters.JobParametersIncrementer;
+import org.springframework.batch.core.job.parameters.JobParametersInvalidException;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.batch.core.step.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -105,9 +105,9 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
         
         // a restartable job
         String jobIdentifier = job.getName();
-        List<JobInstance> lastInstances = getJobExplorer().getJobInstances(jobIdentifier, 0, 1);
+        List<JobInstance> lastInstances = getJobRepository().getJobInstances(jobIdentifier, 0, 1);
         List<Boolean> statuses = lastInstances.stream()
-                .map(instance -> getJobExplorer().getJobExecutions(instance))
+                .map(instance -> getJobRepository().getJobExecutions(instance))
                 .flatMap(lastExecutions -> lastExecutions.stream())
                 .sorted(JOB_EXECUTION_NEW_INSTANCE_COMPARATOR)
                 .map(execution -> execution.getExitStatus())

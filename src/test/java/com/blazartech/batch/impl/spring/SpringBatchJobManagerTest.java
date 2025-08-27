@@ -20,12 +20,11 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobInstance;
-import org.springframework.batch.core.JobParametersIncrementer;
-import org.springframework.batch.core.JobParametersValidator;
-import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.parameters.JobParametersIncrementer;
+import org.springframework.batch.core.job.parameters.JobParametersValidator;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,9 +70,6 @@ public class SpringBatchJobManagerTest {
     private SpringBatchJobManager instance;
     
     @MockitoBean
-    private JobExplorer jobExplorer;
-    
-    @MockitoBean
     private JobRepository jobRepository;
     
     @MockitoBean
@@ -105,20 +101,20 @@ public class SpringBatchJobManagerTest {
         JobExecution executionStopped = new JobExecution(4L);
         executionStopped.setExitStatus(ExitStatus.STOPPED);
         
-        Mockito.when(jobExplorer.getJobInstances(TEST_JOB_NAME, 0, 1))
+        Mockito.when(jobRepository.getJobInstances(TEST_JOB_NAME, 0, 1))
                 .thenReturn(List.of(instance1));
         
-        Mockito.when(jobExplorer.getJobInstances(TEST_FAIL_JOB_NAME, 0, 1))
+        Mockito.when(jobRepository.getJobInstances(TEST_FAIL_JOB_NAME, 0, 1))
                 .thenReturn(List.of(instance2));
         
-        Mockito.when(jobExplorer.getJobInstances(TEST_STOPPED_JOB_NAME, 0, 1))
+        Mockito.when(jobRepository.getJobInstances(TEST_STOPPED_JOB_NAME, 0, 1))
                 .thenReturn(List.of(instance3));
         
-        Mockito.when(jobExplorer.getJobExecutions(instance1))
+        Mockito.when(jobRepository.getJobExecutions(instance1))
 	    .thenReturn(List.of(executionNoop, executionFailed, executionCompleted));
-        Mockito.when(jobExplorer.getJobExecutions(instance2))
+        Mockito.when(jobRepository.getJobExecutions(instance2))
                 .thenReturn(List.of(executionNoop, executionFailed));
-        Mockito.when(jobExplorer.getJobExecutions(instance3))
+        Mockito.when(jobRepository.getJobExecutions(instance3))
                 .thenReturn(List.of(executionNoop, executionStopped));
     }
     
