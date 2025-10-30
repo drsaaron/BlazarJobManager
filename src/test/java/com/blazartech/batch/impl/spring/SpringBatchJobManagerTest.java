@@ -92,13 +92,13 @@ public class SpringBatchJobManagerTest {
         JobInstance instance2 = new JobInstance(2L, TEST_FAIL_JOB_NAME);
         JobInstance instance3 = new JobInstance(3L, TEST_STOPPED_JOB_NAME);
         
-        JobExecution executionNoop = new JobExecution(1L);
+        JobExecution executionNoop = new JobExecution(1L, instance1, null);
         executionNoop.setExitStatus(ExitStatus.NOOP);
-        JobExecution executionCompleted = new JobExecution(200L); // needs to be highest number as completed would always be last
+        JobExecution executionCompleted = new JobExecution(200L, instance2, null); // needs to be highest number as completed would always be last
         executionCompleted.setExitStatus(ExitStatus.COMPLETED);
-        JobExecution executionFailed = new JobExecution(3L);
+        JobExecution executionFailed = new JobExecution(3L, instance3, null);
         executionFailed.setExitStatus(ExitStatus.FAILED);
-        JobExecution executionStopped = new JobExecution(4L);
+        JobExecution executionStopped = new JobExecution(4L, instance3, null);
         executionStopped.setExitStatus(ExitStatus.STOPPED);
         
         Mockito.when(jobRepository.getJobInstances(TEST_JOB_NAME, 0, 1))

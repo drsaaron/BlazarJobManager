@@ -6,7 +6,7 @@
 package com.blazartech.batch.impl.spring.config;
 
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.job.parameters.RunIdIncrementer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

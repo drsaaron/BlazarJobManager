@@ -20,12 +20,12 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.parameters.InvalidJobParametersException;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer;
-import org.springframework.batch.core.job.parameters.JobParametersInvalidException;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.launch.JobRestartException;
 import org.springframework.batch.core.step.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -92,7 +92,7 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
     // the first in the list would be the most recent (highest ID).  The repository seems to do
     // this on its own, but as the ligic in isNewInstanceNeeded will rely on that
     // behavior, be explicit.
-    private static final Comparator<JobExecution> JOB_EXECUTION_NEW_INSTANCE_COMPARATOR = (i1, i2) -> i2.getId().compareTo(i1.getId());
+    private static final Comparator<JobExecution> JOB_EXECUTION_NEW_INSTANCE_COMPARATOR = (i1, i2) -> Long.compare(i2.getId(), i1.getId());
     
     public boolean isNewInstanceNeeded(Job job) {
         logger.info("checking prior runs of the job to determine if new instance needed");
@@ -165,7 +165,7 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
             } else {
                 return JobStatus.Failure;
             }
-        } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException | JobParametersInvalidException e) {
+        } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException | InvalidJobParametersException e) {
             logger.error("error executing job: " + e.getMessage(), e);
             throw new RuntimeException("error executing job: " + e.getMessage(), e);
         }
@@ -173,9 +173,7 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
 
     private void logParameters(JobParameters parameters) {
         logger.info("logging parameters");
-	parameters.getParameters()
-	    .entrySet()
-	    .forEach(p -> logger.info("parameter " + p.getKey() + " = " + p.getValue()));
+	parameters.parameters().forEach(p -> logger.info("parameter {} = {}", p.name(), p.value()));
     }
 
     @Override
