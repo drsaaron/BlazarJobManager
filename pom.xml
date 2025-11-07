@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.blazartech</groupId>
     <artifactId>JobManager-mvn</artifactId>
-    <version>3.5-RELEASE</version>
+    <version>3.6-RELEASE</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,7 +13,7 @@
     <parent>  
         <groupId>com.blazartech</groupId>           
         <artifactId>blazarjavaparent</artifactId>           
-        <version>1.14-RELEASE</version>     
+        <version>1.15-RELEASE</version>     
     </parent> 
     
     <dependencies>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.blazartech</groupId>
             <artifactId>BlazarCryptoFile-mvn</artifactId>
-            <version>1.60-RELEASE</version>
+            <version>1.61-RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
