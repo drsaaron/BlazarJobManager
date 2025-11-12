@@ -9,9 +9,11 @@ import com.blazartech.batch.JobInformation;
 import com.blazartech.batch.JobStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.launch.JobExecutionNotRunningException;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -29,6 +31,9 @@ public class GracefulShutdownHandler extends Thread {
     @Autowired
     private JobOperator jobOperator;
     
+    @Autowired
+    private JobRepository jobRepository;
+    
     private long executionId;
     
     @Autowired
@@ -45,12 +50,13 @@ public class GracefulShutdownHandler extends Thread {
             JobInformation currentStatus = jobManager.getJobInformation(executionId);
             if (currentStatus.getStatus() == JobStatus.Running) {
                 log.info("trying to gracefully shutdown");
-                jobOperator.stop(executionId);
+                JobExecution je = jobRepository.getJobExecution(executionId);
+                jobOperator.stop(je);
                 Thread.sleep(10000); // give time for the any currently running steps to complete
             } else {
                 log.info("job is already complete");
             }
-        } catch (JobExecutionNotRunningException | NoSuchJobExecutionException | InterruptedException e) {
+        } catch (JobExecutionNotRunningException | InterruptedException e) {
             log.error("unable to gracefully shutdown: " + e.getMessage(), e);
         }
     }

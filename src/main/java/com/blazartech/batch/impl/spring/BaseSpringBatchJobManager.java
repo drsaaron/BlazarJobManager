@@ -24,7 +24,7 @@ import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.JobInstance;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +80,7 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
     }
 
     @Autowired
-    private JobLauncher jobLauncher;
+    private JobOperator jobOperator;
 
     @Autowired
     @Qualifier("batchJobMap")
@@ -96,13 +96,13 @@ public abstract class BaseSpringBatchJobManager extends JobManagerBaseImpl imple
     public void setJobRepository(JobRepository jobRepository) {
         this.jobRepository = jobRepository;
     }
-
-    public JobLauncher getJobLauncher() {
-        return jobLauncher;
+    
+    public JobOperator getJobLauncher() {
+        return jobOperator;
     }
 
-    public void setJobLauncher(JobLauncher jobLauncher) {
-        this.jobLauncher = jobLauncher;
+    public void setJobLauncher(JobOperator jobLauncher) {
+        this.jobOperator = jobLauncher;
     }
 
     public Map<String, Job> getJobs() {

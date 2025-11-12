@@ -25,7 +25,7 @@ import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.JobInstance;
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer;
 import org.springframework.batch.core.job.parameters.JobParametersValidator;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -73,7 +73,7 @@ public class SpringBatchJobManagerTest {
     private JobRepository jobRepository;
     
     @MockitoBean
-    private JobLauncher jobLauncher;
+    private JobOperator jobOperator;
     
     public SpringBatchJobManagerTest() {
     }
