@@ -7,12 +7,16 @@ package com.blazartech.batch.impl.spring;
 
 import com.blazartech.batch.IJobManager;
 import com.blazartech.batch.IJobParametersBuilder;
+import com.blazartech.batch.JobInformation;
 import com.blazartech.batch.JobStatus;
+import com.blazartech.batch.impl.JobManagerBaseImpl;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
@@ -22,12 +26,16 @@ import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.JobInstance;
 import org.springframework.batch.core.job.parameters.InvalidJobParametersException;
 import org.springframework.batch.core.job.parameters.JobParameters;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer;
 import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.JobRestartException;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -39,20 +47,133 @@ import org.springframework.stereotype.Component;
  * @author AAR1069
  */
 @Component("SpringBatchJobManager")
-public class SpringBatchJobManager extends BaseSpringBatchJobManager implements IJobManager {
+public class SpringBatchJobManager extends JobManagerBaseImpl implements IJobManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringBatchJobManager.class);
 
+    public <T> JobParameters addJobParameter(JobParameters parameters, String key, T parameter, Class<T> classType) {
+        JobParametersBuilder builder = new JobParametersBuilder(parameters);
+        return builder.addJobParameter(key, parameter, classType).toJobParameters();
+    }
+
+    public JobParameters addParameter(JobParameters parameters, String key, String parameter) {
+        return addJobParameter(parameters, key, parameter, String.class);
+    }
+
+    public JobParameters addParameter(JobParameters parameters, String key, Long parameter) {
+        return addJobParameter(parameters, key, parameter, Long.class);
+    }
+
+    public JobParameters addParameter(JobParameters parameters, String key, Date parameter) {
+        return addJobParameter(parameters, key, parameter, Date.class);
+    }
+
+    public JobParameters addParameter(JobParameters parameters, String key, Double parameter) {
+        return addJobParameter(parameters, key, parameter, Double.class);
+    }
+
+    public JobParameters addParameter(JobParameters parameters, String key, Object parameter) {
+        switch (parameter) {
+            case String string -> {
+                return addParameter(parameters, key, string);
+            }
+            case Long long1 -> {
+                return addParameter(parameters, key, long1);
+            }
+            case Date date -> {
+                return addParameter(parameters, key, date);
+            }
+            case Double double1 -> {
+                return addParameter(parameters, key, double1);
+            }
+            default -> {
+                return addParameter(parameters, key, parameter.toString());
+            }
+        }
+    }
+
+    @Autowired
+    private JobOperator jobOperator;
+
+    @Autowired
+    @Qualifier("batchJobMap")
+    private Map<String, Job> jobs;
+
+    @Autowired
+    private JobRepository jobRepository;
+
+    public Map<String, Job> getJobs() {
+        return jobs;
+    }
+
+    public void setJobs(Map<String, Job> jobs) {
+        this.jobs = jobs;
+    }
+
+    public JobExecution getLastJobExecution(JobInstance lastInstance) {
+        List<JobExecution> executions = jobRepository.getJobExecutions(lastInstance);
+        if (executions == null || executions.isEmpty()) {
+            logger.info("no prior executions found.");
+            return null;
+        }
+        return executions.get(0);
+    }
+
+    public JobExecution getLastJobExecution(String jobName) {
+        return getLastJobExecution(getLastJobInstance(jobName));
+    }
+
+    public JobInstance getLastJobInstance(String jobName) {
+        List<JobInstance> instances = jobRepository.getJobInstances(jobName, 0, 1);
+        if (instances == null || instances.isEmpty()) {
+            logger.info("no prior job instances found.");
+            return null;
+        }
+        JobInstance lastInstance = instances.get(0);
+        return lastInstance;
+    }
+
+    @Resource(name = "batchJobParameterBuilderMap")
+    private Map<String, IJobParametersBuilder> parameterBuilders;
+
+    public Map<String, IJobParametersBuilder> getParameterBuilders() {
+        return parameterBuilders;
+    }
+
+    protected JobStatus getJobStatus(JobExecution execution) {
+        logger.info("getting exit status for execution {}", execution.getId());
+        ExitStatus status = execution.getExitStatus();
+        logger.info(status.toString());
+
+        if (status.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())) {
+            return JobStatus.Success;
+        } else if (status.getExitCode().equals(ExitStatus.UNKNOWN.getExitCode())) {
+            return JobStatus.Running;
+        } else {
+            return JobStatus.Failure;
+        }
+    }
+
+    @Override
+    public JobInformation getJobInformation(long executionID) {
+        JobExecution execution = jobRepository.getJobExecution(executionID);
+        if (execution != null) {
+            JobStatus status = getJobStatus(execution);
+            JobInformation info = new JobInformation();
+            info.setExecutionID(executionID);
+            info.setStatus(status);
+            return info;
+        }
+
+        // couldn't find the thing
+        JobInformation info = new JobInformation();
+        info.setExecutionID(-1);
+        info.setStatus(JobStatus.Unknown);
+        return info;
+    }
+    
     @Autowired
     private JobParametersIncrementer incrementer;
-
-    public JobParametersIncrementer getIncrementer() {
-        return incrementer;
-    }
-
-    public void setIncrementer(JobParametersIncrementer incrementer) {
-        this.incrementer = incrementer;
-    }
 
     private JobParameters getLastRunJobParameters(Job job) {
         logger.info("getting parameters for last job run");
@@ -105,9 +226,9 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
         
         // a restartable job
         String jobIdentifier = job.getName();
-        List<JobInstance> lastInstances = getJobRepository().getJobInstances(jobIdentifier, 0, 1);
+        List<JobInstance> lastInstances = jobRepository.getJobInstances(jobIdentifier, 0, 1);
         List<Boolean> statuses = lastInstances.stream()
-                .map(instance -> getJobRepository().getJobExecutions(instance))
+                .map(instance -> jobRepository.getJobExecutions(instance))
                 .flatMap(lastExecutions -> lastExecutions.stream())
                 .sorted(JOB_EXECUTION_NEW_INSTANCE_COMPARATOR)
                 .map(execution -> execution.getExitStatus())
@@ -151,13 +272,13 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
                     logger.info("creating new job instance.");
 
                     // get the next instance of the job.
-                    parameters = getIncrementer().getNext(parameters);
+                    parameters = incrementer.getNext(parameters);
                 } else {
                     logger.info("using old instance.");
                 }
             }
 
-            JobExecution execution = getJobLauncher().run(job, parameters);
+            JobExecution execution = jobOperator.run(job, parameters);
             ExitStatus status = execution.getExitStatus();
             logger.info("exit status = " + status);
             if (status.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())) {
@@ -231,7 +352,7 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
         // update status.
         lastExecution.setStatus(BatchStatus.COMPLETED);
         lastExecution.setExitStatus(ExitStatus.COMPLETED);
-        getJobRepository().update(lastExecution);
+        jobRepository.update(lastExecution);
     }
 
     @Override
@@ -273,6 +394,6 @@ public class SpringBatchJobManager extends BaseSpringBatchJobManager implements 
         // update
         lastStepExecution.setStatus(BatchStatus.COMPLETED);
         lastStepExecution.setExitStatus(ExitStatus.COMPLETED);
-        getJobRepository().update(lastStepExecution);
+        jobRepository.update(lastStepExecution);
     }
 }
