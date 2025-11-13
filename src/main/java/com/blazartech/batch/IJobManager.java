@@ -5,6 +5,7 @@
  */
 package com.blazartech.batch;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -49,7 +50,7 @@ public interface IJobManager {
      * @param jobName
      * @return 
      */
-    public JobStatus runJob(String jobName);
+    default public JobStatus runJob(String jobName) { return runJob(jobName, new HashMap<>()); }
     
     /**
      * forcibly set a job to success.  this would be needed for a restartable job

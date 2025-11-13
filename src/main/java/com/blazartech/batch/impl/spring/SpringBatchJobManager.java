@@ -47,7 +47,7 @@ import org.springframework.stereotype.Component;
  * @author AAR1069
  */
 @Component("SpringBatchJobManager")
-public class SpringBatchJobManager extends JobManagerBaseImpl implements IJobManager {
+public class SpringBatchJobManager implements IJobManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringBatchJobManager.class);
 
