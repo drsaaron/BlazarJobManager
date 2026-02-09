@@ -9,7 +9,8 @@ import com.blazartech.batch.IJobManager;
 import com.blazartech.batch.IJobParametersBuilder;
 import com.blazartech.batch.JobInformation;
 import com.blazartech.batch.JobStatus;
-import com.blazartech.batch.impl.JobManagerBaseImpl;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -171,7 +172,7 @@ public class SpringBatchJobManager implements IJobManager {
         info.setStatus(JobStatus.Unknown);
         return info;
     }
-    
+
     @Autowired
     private JobParametersIncrementer incrementer;
 
@@ -180,7 +181,9 @@ public class SpringBatchJobManager implements IJobManager {
 
         String jobIdentifier = job.getName();
         JobInstance lastInstance = getLastJobInstance(jobIdentifier);
-        if (lastInstance == null) { return null; }
+        if (lastInstance == null) {
+            return null;
+        }
         logger.info("last instance ID = " + lastInstance.getId());
 
         JobExecution lastExecution = getLastJobExecution(lastInstance);
@@ -214,7 +217,7 @@ public class SpringBatchJobManager implements IJobManager {
     // this on its own, but as the ligic in isNewInstanceNeeded will rely on that
     // behavior, be explicit.
     private static final Comparator<JobExecution> JOB_EXECUTION_NEW_INSTANCE_COMPARATOR = (i1, i2) -> Long.compare(i2.getId(), i1.getId());
-    
+
     public boolean isNewInstanceNeeded(Job job) {
         logger.info("checking prior runs of the job to determine if new instance needed");
 
@@ -223,7 +226,7 @@ public class SpringBatchJobManager implements IJobManager {
             logger.info("job is not restartable, so a new instance is definitely needed.");
             return true;
         }
-        
+
         // a restartable job
         String jobIdentifier = job.getName();
         List<JobInstance> lastInstances = jobRepository.getJobInstances(jobIdentifier, 0, 1);
@@ -294,7 +297,7 @@ public class SpringBatchJobManager implements IJobManager {
 
     private void logParameters(JobParameters parameters) {
         logger.info("logging parameters");
-	parameters.parameters().forEach(p -> logger.info("parameter {} = {}", p.name(), p.value()));
+        parameters.parameters().forEach(p -> logger.info("parameter {} = {}", p.name(), p.value()));
     }
 
     @Override
@@ -308,16 +311,25 @@ public class SpringBatchJobManager implements IJobManager {
         }
 
         // build the parameters.
-        JobParameters jobParameters = new JobParameters();
-        for (String key : parameters.keySet()) {
-            jobParameters = addParameter(jobParameters, key, parameters.get(key));
-        }
+        JobParameters jobParameters = buildJobParameters(parameters);
 
         // log the parameters.
         logParameters(jobParameters);
 
         // run the job
         return runJob(job, jobParameters);
+    }
+
+    public JobParameters buildJobParameters(Map<String, Object> parameters) {
+
+        JobParameters jobParameters = parameters.keySet().stream()
+                .reduce(
+                        new JobParameters(),
+                        (jp, key) -> addParameter(jp, key, parameters.get(key)),
+                        (jp1, jp2) -> jp1
+                );
+
+        return jobParameters;
     }
 
     @Override
@@ -339,7 +351,7 @@ public class SpringBatchJobManager implements IJobManager {
 
         // get the last execution of the job.
         JobExecution lastExecution = getLastJobExecution(jobName);
-        
+
         // sanity checks.
         if (lastExecution == null) {
             logger.info("job has never been executed!");
@@ -358,10 +370,10 @@ public class SpringBatchJobManager implements IJobManager {
     @Override
     public void forceStepToSuccess(String jobName, String stepName) {
         logger.info("forcing step " + stepName + " in job " + jobName + " to success.");
-        
+
         // get the last execution of the job.
         JobExecution lastExecution = getLastJobExecution(jobName);
-        
+
         // sanity checks.
         if (lastExecution == null) {
             logger.info("job has never been executed!");
@@ -370,10 +382,10 @@ public class SpringBatchJobManager implements IJobManager {
             logger.info("job has already completed successfully!");
             throw new IllegalStateException("job " + jobName + " has already completed successfully");
         }
-        
+
         // get the steps from that run.
         Collection<StepExecution> stepExecutions = lastExecution.getStepExecutions();
-        
+
         // find that step.
         StepExecution lastStepExecution = null;
         for (StepExecution step : stepExecutions) {
@@ -382,7 +394,7 @@ public class SpringBatchJobManager implements IJobManager {
                 break;
             }
         }
-        
+
         // sanity check.
         if (lastStepExecution == null) {
             throw new IllegalArgumentException("step " + stepName + " not found in last execution of " + jobName);
@@ -390,7 +402,7 @@ public class SpringBatchJobManager implements IJobManager {
             logger.info("step has already completed successfully!");
             throw new IllegalStateException("step " + stepName + " has already completed successfully");
         }
-        
+
         // update
         lastStepExecution.setStatus(BatchStatus.COMPLETED);
         lastStepExecution.setExitStatus(ExitStatus.COMPLETED);

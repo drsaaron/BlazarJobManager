@@ -23,6 +23,7 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer;
 import org.springframework.batch.core.job.parameters.JobParametersValidator;
 import org.springframework.batch.core.launch.JobOperator;
@@ -201,5 +202,18 @@ public class SpringBatchJobManagerTest {
         Job job = new TestJob(TEST_FAIL_JOB_NAME, false);
         boolean result = instance.isNewInstanceNeeded(job);
         assertEquals(true, result);
+    }
+    
+    @Test
+    public void testBuildJobParameters() {
+        
+        logger.info("buildJobParameters");
+        
+        Map<String, Object> parametersMap = Map.of("first", 1L, "second", 2L, "third", "three");
+        JobParameters jp = instance.buildJobParameters(parametersMap);
+        
+        assertEquals(parametersMap.size(), jp.parameters().size());
+        assertEquals(parametersMap.get("first"), jp.getLong("first"));
+        assertEquals(parametersMap.get("third"), jp.getString("third"));
     }
 }
