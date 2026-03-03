@@ -6,12 +6,15 @@ package com.blazartech.batch.impl.spring;
 
 import com.blazartech.batch.IJobParametersBuilder;
 import com.blazartech.batch.impl.spring.config.JobParametersIncrementerConfiguration;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +31,7 @@ import org.springframework.batch.core.job.parameters.JobParametersIncrementer;
 import org.springframework.batch.core.job.parameters.JobParametersValidator;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
@@ -215,5 +219,36 @@ public class SpringBatchJobManagerTest {
         assertEquals(parametersMap.size(), jp.parameters().size());
         assertEquals(parametersMap.get("first"), jp.getLong("first"));
         assertEquals(parametersMap.get("third"), jp.getString("third"));
+    }
+    
+    @Test
+    public void testFindStepExecution_found() {
+        
+        logger.info("findStepExecution_found");
+        
+        StepExecution ex1 = new StepExecution(1, "step1", null);
+        StepExecution ex2 = new StepExecution(2, "step2", null);
+        StepExecution ex3 = new StepExecution(3, "step3", null);
+        
+        Collection<StepExecution> stepExecutions = List.of(ex1, ex2, ex3);
+        
+        StepExecution ex2found = instance.findStepExecution(stepExecutions, "step2");
+        assertNotNull(ex2found);
+        assertEquals(ex2.getId(), ex2found.getId());
+    }
+    
+    @Test
+    public void testFindStepExecution_notFound() {
+        
+        logger.info("findStepExecution_notFound");
+        
+        StepExecution ex1 = new StepExecution(1, "step1", null);
+        StepExecution ex2 = new StepExecution(2, "step2", null);
+        StepExecution ex3 = new StepExecution(3, "step3", null);
+        
+        Collection<StepExecution> stepExecutions = List.of(ex1, ex2, ex3);
+        
+        StepExecution ex4found = instance.findStepExecution(stepExecutions, "step4");
+        assertNull(ex4found);
     }
 }

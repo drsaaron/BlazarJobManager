@@ -364,6 +364,15 @@ public class SpringBatchJobManager implements IJobManager {
         lastExecution.setExitStatus(ExitStatus.COMPLETED);
         jobRepository.update(lastExecution);
     }
+    
+    protected StepExecution findStepExecution(Collection<StepExecution> stepExecutions, String stepName) {
+        
+        // find that step.
+        return stepExecutions.stream()
+                .filter(step -> step.getStepName().equals(stepName))
+                .findFirst()
+                .orElse(null);
+    }
 
     @Override
     public void forceStepToSuccess(String jobName, String stepName) {
@@ -385,13 +394,7 @@ public class SpringBatchJobManager implements IJobManager {
         Collection<StepExecution> stepExecutions = lastExecution.getStepExecutions();
 
         // find that step.
-        StepExecution lastStepExecution = null;
-        for (StepExecution step : stepExecutions) {
-            if (step.getStepName().equals(stepName)) {
-                lastStepExecution = step;
-                break;
-            }
-        }
+        StepExecution lastStepExecution = findStepExecution(stepExecutions, stepName);
 
         // sanity check.
         if (lastStepExecution == null) {
