@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
 /**
  *
@@ -26,20 +26,18 @@ public class JobOperatorConfiguration {
     // should we use an async executor for the job execution?  Default is no (false).
     @Value("${batch.job.async:false}")
     private boolean useAsync;
+    
+    @Autowired
+    private TaskExecutor taskExecutor;
 
     @Bean
     public JobOperatorFactoryBean jobOperator() {
         JobOperatorFactoryBean l = new JobOperatorFactoryBean();
         l.setJobRepository(jobRepository);
         if (useAsync) {
-            l.setTaskExecutor(simpleAsyncTaskExecutor());
+            l.setTaskExecutor(taskExecutor);
         }
         return l;
     }
 
-    public SimpleAsyncTaskExecutor simpleAsyncTaskExecutor() {
-        SimpleAsyncTaskExecutor simpleAsyncTaskExecutor = new SimpleAsyncTaskExecutor();
-        simpleAsyncTaskExecutor.setConcurrencyLimit(10);
-        return simpleAsyncTaskExecutor;
-    }
 }
