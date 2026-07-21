@@ -251,7 +251,7 @@ public class SpringBatchJobManager implements IJobManager {
         }
     }
 
-    private JobStatus runJob(Job job, JobParameters parameters) {
+    private JobInformation runJob(Job job, JobParameters parameters) {
         logger.info("starting job");
         try {
             // we need to add run.id to the parameters so that we can get the correct instance.
@@ -280,13 +280,13 @@ public class SpringBatchJobManager implements IJobManager {
             }
 
             JobExecution execution = jobOperator.run(job, parameters);
-            ExitStatus status = execution.getExitStatus();
-            logger.info("exit status = " + status);
-            if (status.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())) {
-                return JobStatus.Success;
-            } else {
-                return JobStatus.Failure;
-            }
+            JobStatus jobStatus = getJobStatus(execution);
+            
+            JobInformation info = new JobInformation();
+            info.setExecutionID(execution.getId());
+            info.setStatus(jobStatus);
+            
+            return info;
         } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException | InvalidJobParametersException e) {
             logger.error("error executing job: " + e.getMessage(), e);
             throw new RuntimeException("error executing job: " + e.getMessage(), e);
@@ -299,7 +299,7 @@ public class SpringBatchJobManager implements IJobManager {
     }
 
     @Override
-    public JobStatus runJob(String jobName, Map<String, Object> parameters) {
+    public JobInformation runJob(String jobName, Map<String, Object> parameters) {
         logger.info("starting job " + jobName);
 
         // find the job.
@@ -331,14 +331,14 @@ public class SpringBatchJobManager implements IJobManager {
     }
 
     @Override
-    public JobStatus runJob(String jobName, String[] args) {
+    public JobInformation runJob(String jobName, String[] args) {
         logger.info("running job " + jobName + " with arguments " + String.join(", ", args));
         IJobParametersBuilder parametersBuilder = getParameterBuilders().get(jobName);
         return runJob(jobName, args, parametersBuilder);
     }
 
     @Override
-    public JobStatus runJob(String jobName, String[] args, IJobParametersBuilder parameterBuilder) {
+    public JobInformation runJob(String jobName, String[] args, IJobParametersBuilder parameterBuilder) {
         Map<String, Object> parameters = parameterBuilder.buildJobParameters(args);
         return runJob(jobName, parameters);
     }

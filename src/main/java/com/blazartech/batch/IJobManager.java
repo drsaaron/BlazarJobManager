@@ -23,7 +23,7 @@ public interface IJobManager {
      * @param parameters
      * @return 
      */
-    public JobStatus runJob(String jobName, Map<String, Object> parameters);
+    public JobInformation runJob(String jobName, Map<String, Object> parameters);
 
     /**
      * run a job by first building the parameters from a list of strings.
@@ -32,7 +32,7 @@ public interface IJobManager {
      * @param args
      * @return 
      */
-    public JobStatus runJob(String jobName, String[] args);
+    public JobInformation runJob(String jobName, String[] args);
 
     /**
      * run a job using a parameter builder to convert the argument list to parameters.
@@ -42,7 +42,7 @@ public interface IJobManager {
      * @param parameterBuilder
      * @return 
      */
-    public JobStatus runJob(String jobName, String[] args, IJobParametersBuilder parameterBuilder);
+    public JobInformation runJob(String jobName, String[] args, IJobParametersBuilder parameterBuilder);
     
     /**
      * run a job with no parameters.
@@ -50,7 +50,7 @@ public interface IJobManager {
      * @param jobName
      * @return 
      */
-    default public JobStatus runJob(String jobName) { return runJob(jobName, new HashMap<>()); }
+    default public JobInformation runJob(String jobName) { return runJob(jobName, new HashMap<>()); }
     
     /**
      * forcibly set a job to success.  this would be needed for a restartable job

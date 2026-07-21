@@ -6,6 +6,7 @@
 package com.blazartech.batch.main;
 
 import com.blazartech.batch.IJobManager;
+import com.blazartech.batch.JobInformation;
 import com.blazartech.batch.JobStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,8 @@ public class JobRunner {
 
             // run the job.
             logger.info("starting job " + jobName);
-            JobStatus status = jobManager.runJob(jobName, args);
+            JobInformation info = jobManager.runJob(jobName, args);
+            JobStatus status = info.getStatus();
             if (status == JobStatus.Failure) {
                 System.exit(1);
             }
