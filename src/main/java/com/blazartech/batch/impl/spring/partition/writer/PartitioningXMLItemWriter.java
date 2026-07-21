@@ -83,6 +83,7 @@ public class PartitioningXMLItemWriter<T> implements ItemWriter<T>, Initializing
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void write(Chunk<? extends T> chunk) throws Exception {
         Map<Integer, List<T>> hashedList = new HashMap<>();
 
