@@ -148,6 +148,8 @@ public class SpringBatchJobManager implements IJobManager {
             return JobStatus.Success;
         } else if (status.getExitCode().equals(ExitStatus.UNKNOWN.getExitCode())) {
             return JobStatus.Running;
+        } else if (status.getExitCode().equals(ExitStatus.STOPPED.getExitCode())) {
+            return JobStatus.Stopped;
         } else {
             return JobStatus.Failure;
         }

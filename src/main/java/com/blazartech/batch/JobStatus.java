@@ -11,5 +11,5 @@ package com.blazartech.batch;
  */
 public enum JobStatus {
     
-    Success, Failure, Running, Unknown;
+    Success, Failure, Running, Stopped, Unknown;
 }
