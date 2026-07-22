@@ -55,30 +55,14 @@ public class SpringBatchJobManager implements IJobManager {
         return builder.addJobParameter(key, parameter, classType).toJobParameters();
     }
 
-    private JobParameters addParameter(JobParameters parameters, String key, String parameter) {
-        return addJobParameter(parameters, key, parameter, String.class);
-    }
-
-    private JobParameters addParameter(JobParameters parameters, String key, Long parameter) {
-        return addJobParameter(parameters, key, parameter, Long.class);
-    }
-
-    private JobParameters addParameter(JobParameters parameters, String key, Date parameter) {
-        return addJobParameter(parameters, key, parameter, Date.class);
-    }
-
-    private JobParameters addParameter(JobParameters parameters, String key, Double parameter) {
-        return addJobParameter(parameters, key, parameter, Double.class);
-    }
-
     public JobParameters addParameter(JobParameters parameters, String key, Object parameter) {
         return switch (parameter) {
             case null -> throw new IllegalArgumentException("cannot have a null parameter");
-            case String string -> addParameter(parameters, key, string);
-            case Long long1 -> addParameter(parameters, key, long1);
-            case Date date -> addParameter(parameters, key, date);
-            case Double double1 -> addParameter(parameters, key, double1);
-            default -> addParameter(parameters, key, parameter.toString());
+            case String string -> addJobParameter(parameters, key, string, String.class);
+            case Long long1 -> addJobParameter(parameters, key, long1, Long.class);
+            case Date date -> addJobParameter(parameters, key, date, Date.class);
+            case Double double1 -> addJobParameter(parameters, key, double1, Double.class);
+            default -> addJobParameter(parameters, key, parameter.toString(), String.class);
         };
     }
 
