@@ -55,40 +55,31 @@ public class SpringBatchJobManager implements IJobManager {
         return builder.addJobParameter(key, parameter, classType).toJobParameters();
     }
 
-    public JobParameters addParameter(JobParameters parameters, String key, String parameter) {
+    private JobParameters addParameter(JobParameters parameters, String key, String parameter) {
         return addJobParameter(parameters, key, parameter, String.class);
     }
 
-    public JobParameters addParameter(JobParameters parameters, String key, Long parameter) {
+    private JobParameters addParameter(JobParameters parameters, String key, Long parameter) {
         return addJobParameter(parameters, key, parameter, Long.class);
     }
 
-    public JobParameters addParameter(JobParameters parameters, String key, Date parameter) {
+    private JobParameters addParameter(JobParameters parameters, String key, Date parameter) {
         return addJobParameter(parameters, key, parameter, Date.class);
     }
 
-    public JobParameters addParameter(JobParameters parameters, String key, Double parameter) {
+    private JobParameters addParameter(JobParameters parameters, String key, Double parameter) {
         return addJobParameter(parameters, key, parameter, Double.class);
     }
 
     public JobParameters addParameter(JobParameters parameters, String key, Object parameter) {
-        switch (parameter) {
-            case String string -> {
-                return addParameter(parameters, key, string);
-            }
-            case Long long1 -> {
-                return addParameter(parameters, key, long1);
-            }
-            case Date date -> {
-                return addParameter(parameters, key, date);
-            }
-            case Double double1 -> {
-                return addParameter(parameters, key, double1);
-            }
-            default -> {
-                return addParameter(parameters, key, parameter.toString());
-            }
-        }
+        return switch (parameter) {
+            case null -> throw new IllegalArgumentException("cannot have a null parameter");
+            case String string -> addParameter(parameters, key, string);
+            case Long long1 -> addParameter(parameters, key, long1);
+            case Date date -> addParameter(parameters, key, date);
+            case Double double1 -> addParameter(parameters, key, double1);
+            default -> addParameter(parameters, key, parameter.toString());
+        };
     }
 
     @Autowired

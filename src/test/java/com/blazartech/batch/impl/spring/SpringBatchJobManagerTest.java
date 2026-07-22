@@ -7,6 +7,7 @@ package com.blazartech.batch.impl.spring;
 import com.blazartech.batch.IJobParametersBuilder;
 import com.blazartech.batch.JobStatus;
 import com.blazartech.batch.impl.spring.config.JobParametersIncrementerConfiguration;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -274,5 +277,30 @@ public class SpringBatchJobManagerTest {
         testJobStatus(ExitStatus.FAILED, JobStatus.Failure);
         testJobStatus(ExitStatus.STOPPED, JobStatus.Stopped);
         testJobStatus(ExitStatus.NOOP, JobStatus.Failure);
+    }
+    
+    @Test
+    public void testAddParameter() {
+        logger.info("addParameter");
+        
+        JobParameters jp = new JobParameters();
+        
+        jp = instance.addParameter(jp, "testString", "myValue");
+        
+        assertEquals(1, jp.getIdentifyingParameters().size());
+        assertTrue(jp.getParameter("testString").type() == String.class);
+        
+        jp = instance.addParameter(jp, "testDouble", 3.14159);
+        
+        assertEquals(2, jp.getIdentifyingParameters().size());
+        assertTrue(jp.getParameter("testDouble").type() == Double.class);
+        
+        jp = instance.addParameter(jp, "testDate", LocalDate.parse("2026-12-31"));
+        
+        assertEquals(3, jp.getIdentifyingParameters().size());
+        assertTrue(jp.getParameter("testDate").type() == String.class);
+        
+        final JobParameters jp2 = jp;
+        assertThrows(IllegalArgumentException.class, () -> instance.addParameter(jp2, "throwMe", null));
     }
 }
