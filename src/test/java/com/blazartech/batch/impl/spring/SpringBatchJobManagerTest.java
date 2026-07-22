@@ -5,6 +5,7 @@
 package com.blazartech.batch.impl.spring;
 
 import com.blazartech.batch.IJobParametersBuilder;
+import com.blazartech.batch.JobStatus;
 import com.blazartech.batch.impl.spring.config.JobParametersIncrementerConfiguration;
 import java.util.Collection;
 import java.util.HashMap;
@@ -250,5 +251,28 @@ public class SpringBatchJobManagerTest {
         
         StepExecution ex4found = instance.findStepExecution(stepExecutions, "step4");
         assertNull(ex4found);
+    }
+    
+    private void testJobStatus(ExitStatus exitStatus, JobStatus expectedJobStatus) {
+        
+        JobInstance ji = new JobInstance(1L, "testJob");
+        JobExecution je = new JobExecution(1L, ji, null);
+        je.setExitStatus(exitStatus);
+        
+        JobStatus status = instance.getJobStatus(je);
+        
+        assertEquals(expectedJobStatus, status);
+    }
+    
+    @Test
+    public void testGetJobStatus() {
+        logger.info("getJobStatus");
+        
+        testJobStatus(ExitStatus.COMPLETED, JobStatus.Success);
+        testJobStatus(ExitStatus.EXECUTING, JobStatus.Failure);
+        testJobStatus(ExitStatus.UNKNOWN, JobStatus.Running);
+        testJobStatus(ExitStatus.FAILED, JobStatus.Failure);
+        testJobStatus(ExitStatus.STOPPED, JobStatus.Stopped);
+        testJobStatus(ExitStatus.NOOP, JobStatus.Failure);
     }
 }

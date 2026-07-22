@@ -139,20 +139,21 @@ public class SpringBatchJobManager implements IJobManager {
         return parameterBuilders;
     }
 
+    /**
+     * map the non-failure ExitStatus values to their appropriate JobStatus.
+     * Any status not in this map is a failure.
+     */
+    private static final Map<ExitStatus, JobStatus> EXIT_STATUS_MAP = Map.of(
+            ExitStatus.COMPLETED, JobStatus.Success,
+            ExitStatus.UNKNOWN, JobStatus.Running,
+            ExitStatus.STOPPED, JobStatus.Stopped
+    );
+    
     protected JobStatus getJobStatus(JobExecution execution) {
-        logger.info("getting exit status for execution {}", execution.getId());
+        logger.info("getting exit status for execution {}", execution);
         ExitStatus status = execution.getExitStatus();
-        logger.info(status.toString());
-
-        if (status.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())) {
-            return JobStatus.Success;
-        } else if (status.getExitCode().equals(ExitStatus.UNKNOWN.getExitCode())) {
-            return JobStatus.Running;
-        } else if (status.getExitCode().equals(ExitStatus.STOPPED.getExitCode())) {
-            return JobStatus.Stopped;
-        } else {
-            return JobStatus.Failure;
-        }
+        
+        return EXIT_STATUS_MAP.getOrDefault(status, JobStatus.Failure);
     }
 
     @Override
